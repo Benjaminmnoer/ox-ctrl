@@ -337,8 +337,12 @@ static int lba_io_submit (struct nvm_io_cmd *cmd)
     uint32_t lba_i;
     uint64_t lbas[cmd->n_sec];
 
-    if (cmd->cmdtype != MMGR_WRITE_PG)
+    if (cmd->cmdtype == MMGR_READ_PG)
         goto READ;
+
+    if (cmd->cmdtype == MMGR_WRITE_DELTA){
+        goto DELTA;
+    }
 
     for (lba_i = 0; lba_i < cmd->n_sec; lba_i++)
         lbas[lba_i] = cmd->slba + lba_i;
@@ -353,6 +357,10 @@ READ:
         app_transaction_abort ((struct app_transaction_t *) cmd->opaque);
 
     return ret;
+
+DELTA:
+    printf("I HAVE RECEIVED A DELTA REQUEST WUHUU");
+    return 0; // Return 0 to avoid infite loop here. 
 
 ERR:
     cmd->status.status = NVM_IO_FAIL;

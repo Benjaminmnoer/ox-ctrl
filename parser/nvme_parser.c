@@ -27,7 +27,7 @@
 #include <nvmef.h>
 #include <ox-app.h>
 
-#define PARSER_NVME_COUNT   4
+#define PARSER_NVME_COUNT   5
 
 extern struct core_struct core;
 
@@ -145,7 +145,7 @@ static int parser_nvme_rw (NvmeRequest *req, NvmeCmd *cmd)
     uint64_t data_size = nlb << data_shift;
 
     req->nvm_io.status.status = NVM_IO_NEW;
-    req->is_write = rw->opcode == NVME_CMD_WRITE;
+    req->is_write = rw->opcode == NVME_CMD_WRITE || rw->opcode == NVME_CMD_WRITE_DELTA;
 
     if (elba > (ns->id_ns.nsze) + 1)
 	return NVME_LBA_RANGE | NVME_DNR;
@@ -188,7 +188,18 @@ static int parser_nvme_rw (NvmeRequest *req, NvmeCmd *cmd)
     req->nvm_io.cid = rw->cid;
     req->nvm_io.sec_sz = NVME_KERNEL_PG_SIZE;
     req->nvm_io.md_sz = 0;
-    req->nvm_io.cmdtype = (req->is_write) ? MMGR_WRITE_PG : MMGR_READ_PG;
+
+    if (req->is_write){
+        if (rw->opcode == NVME_CMD_WRITE_DELTA){
+            printf("Request is a delta request");
+            req->nvm_io.cmdtype = MMGR_WRITE_DELTA;
+        } else {
+            req->nvm_io.cmdtype = MMGR_WRITE_PG;
+        }
+    } else{
+        req->nvm_io.cmdtype = MMGR_READ_PG;
+    }
+
     req->nvm_io.n_sec = nlb;
     req->nvm_io.req = (void *) req;
     req->nvm_io.slba = slba;
@@ -243,6 +254,12 @@ static struct nvm_parser_cmd nvme_cmds[PARSER_NVME_COUNT] = {
         .name       = "NVME_READ_NULL",
         .opcode     = NVME_CMD_READ_NULL,
         .opcode_fn  = parser_nvme_null,
+        .queue_type = NVM_CMD_IO
+    },
+    {
+        .name       = "NVME_WRITE_DELTA",
+        .opcode     = NVME_CMD_WRITE_DELTA,
+        .opcode_fn  = parser_nvme_rw,
         .queue_type = NVM_CMD_IO
     }
 };

@@ -118,6 +118,7 @@ enum {
     MMGR_WRITE_SGL = 0x9,
     MMGR_WRITE_PL_PG = 0x10,
     MMGR_READ_PL_PG = 0x11,
+    MMGR_WRITE_DELTA = 0x12
 };
 
 enum NVM_ERROR {

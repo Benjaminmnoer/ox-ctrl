@@ -95,7 +95,7 @@ int  nvmeh_read (uint8_t *buf, uint64_t size, uint64_t slba,
 /**
  * Writes data to an OX NVMe device.
  * 
- * @param buf - Memory pointer containing the date to be written.
+ * @param buf - Memory pointer containing the data to be written.
  * @param size - Data size to be written starting at 'slba'.
  * @param slba - Starting logical block address (each logical block is
  *                  4096 bytes in size, the only size supported for now).
@@ -105,6 +105,21 @@ int  nvmeh_read (uint8_t *buf, uint64_t size, uint64_t slba,
  *          failure.
  */
 int  nvmeh_write (uint8_t *buf, uint64_t size, uint64_t slba,
+                                        nvme_host_callback_fn *cb, void *ctx);
+
+
+/**
+ * Writes a delta for a basepage to an OX NVMe device.
+ * 
+ * @param buf - Memory pointer containing the data to be written.
+ * @param size - Size of the delta to be written.
+ * @param basepage - Basepage for the delta.
+ * @param cb - user defined callback function for command completion.
+ * @param ctx - user defined context returned by the callback function.
+ * @return returns 0 if the write has been submitted, or a negative value upon
+ *          failure.
+ */
+int nvmeh_write_delta (uint8_t *buf, uint64_t size, uint64_t basepage,
                                         nvme_host_callback_fn *cb, void *ctx);
 
 
