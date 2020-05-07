@@ -209,3 +209,7 @@ target_link_libraries ( ox-test-nvme-thput-w ox-host-nvme )
 set(OX_TEST_NVME_THPUT_R ${PROJECT_SOURCE_DIR}/test/test-nvme-thput-r.c )
 add_executable ( ox-test-nvme-thput-r ${OX_TEST_NVME_THPUT_R} )
 target_link_libraries ( ox-test-nvme-thput-r ox-host-nvme )
+
+set(OX_TEST_NVME_WRITE_DELTA ${PROJECT_SOURCE_DIR}/test/test-nvme-write-delta.c )
+add_executable ( ox-test-nvme-write-delta ${OX_TEST_NVME_WRITE_DELTA} )
+target_link_libraries ( ox-test-nvme-write-delta ox-host-nvme )
