@@ -110,6 +110,7 @@ set(SRC_FTL_OXBLK
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-gc.c
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-log.c
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-recovery.c
+        ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-delta.c
 	${PROJECT_SOURCE_DIR}/ftl/ox-app/block/non-recoverable/oxb-chmap-nr.c
 	${PROJECT_SOURCE_DIR}/ftl/ox-app/block/non-recoverable/oxb-blkmd-nr.c)
 add_library ( ox-ftl-block STATIC ${SRC_FTL_OXBLK} )

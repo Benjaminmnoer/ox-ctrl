@@ -360,7 +360,8 @@ READ:
 
 DELTA:
     printf("I HAVE RECEIVED A DELTA REQUEST WUHUU");
-    return 0; // Return 0 to avoid infite loop here. 
+    ret = oxapp()->delta->write_fn (cmd);
+    return ret;
 
 ERR:
     cmd->status.status = NVM_IO_FAIL;

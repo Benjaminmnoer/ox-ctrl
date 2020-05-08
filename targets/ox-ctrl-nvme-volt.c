@@ -26,6 +26,8 @@ static void ox_ftl_modules (void)
     oxb_log_register ();
     /* Recovery */
     oxb_recovery_register ();
+    /* Delta */
+    oxb_delta_register ();
 }
 
 int main (int argc, char **argv)
