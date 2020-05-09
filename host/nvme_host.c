@@ -376,6 +376,73 @@ int nvmeh_write (uint8_t *buf, uint64_t size, uint64_t slba,
     return nvmeh_rw (buf, size, slba, 1, cb, ctx);
 }
 
+int nvmeh_write_delta (uint8_t *buf, uint8_t *size, uint64_t *basepage, uint32_t n_delta,
+                                           oxf_host_callback_fn *cb, void *ctx)
+{
+    struct nvme_cmd_rw *cmd;
+    struct nvme_sgl_desc *desc;
+    struct nvmeh_ctx *nvmeh_ctx;
+    uint16_t n_queues;
+    uint32_t cmd_i;
+    uint8_t *buf_off[1];
+    uint32_t buf_sz[1];
+    
+
+    if (!buf || !size) {
+        printf ("[nvme: Buffer is empty.]\n");
+        return -1;
+    }
+
+    n_queues = oxf_host_queue_count();
+
+    cmd = calloc (n_delta, sizeof (struct nvme_cmd));
+    if (!cmd) {
+        printf("[nvme: Could not allocate memory for cmds.]\n");
+        return -1;
+    }
+
+    buf_off[0] = (uint8_t *) buf;
+    buf_sz[0]  = size[0];    
+
+    nvmeh_ctx = nvmeh_ctxw_get (&nvmeh);
+    if (!nvmeh_ctx)
+        goto FULL;
+
+    nvmeh_ctx->user_ctx = ctx;
+    nvmeh_ctx->user_cb = cb;
+    nvmeh_ctx->n_cmd = n_delta;
+
+    for (cmd_i = 0; cmd_i < n_delta; cmd_i++){
+        
+    }
+
+    desc = oxf_host_alloc_sgl (buf_off, buf_sz, 1);
+    if (!desc)
+        goto FULL;
+
+    nvmeh_ctx->cmd_status[0].ctx = nvmeh_ctx;
+    nvmeh_ctx->cmd_status[0].status = 0;
+
+    cmd[0].slba = basepage;
+    cmd[0].nlb = 1;
+    cmd[0].opcode = NVME_CMD_WRITE_DELTA;
+
+    if (oxf_host_submit_io (1, (struct nvme_cmd *) &cmd[0], desc, 1, nvmeh_callback, &nvmeh_ctx->cmd_status[0])) {
+        oxf_host_free_sgl (desc);
+        goto FULL;
+    }
+
+    oxf_host_free_sgl (desc);
+
+    printf("Ox command submitted\n");
+
+    return 0;
+
+FULL:
+    free(cmd);
+    return -1;
+}
+
 void nvmeh_exit (void)
 {
     oxf_host_exit ();

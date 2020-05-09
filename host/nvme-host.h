@@ -108,5 +108,21 @@ int  nvmeh_write (uint8_t *buf, uint64_t size, uint64_t slba,
                                         nvme_host_callback_fn *cb, void *ctx);
 
 
+/**
+ * Writes a delta for a basepage to an OX NVMe device.
+ * 
+ * @param buf - Memory pointer containing the data to be written.
+ * @param size - Array of sizes.
+ * @param basepage - Array of basepages.
+ * @param ndelta - Number of deltas to be written.
+ * @param cb - user defined callback function for command completion.
+ * @param ctx - user defined context returned by the callback function.
+ * @return returns 0 if the write has been submitted, or a negative value upon
+ *          failure.
+ */
+int nvmeh_write_delta (uint8_t *buf, uint8_t *size, uint64_t *basepage, uint64_t ndelta,
+                                        nvme_host_callback_fn *cb, void *ctx);
+
+
 #endif /* NVME_HOST_H */
 
