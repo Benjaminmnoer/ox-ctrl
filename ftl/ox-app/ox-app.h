@@ -314,7 +314,8 @@ struct app_ch_flags {
 struct app_map_entry {
     uint64_t lba;
     uint64_t ppa;
-} __attribute__((packed)); /* 16 bytes entry */
+    uint64_t delta;
+} __attribute__((packed)); /* 24 bytes entry */
 
 struct app_map_md {
     struct nvm_magic byte;
@@ -569,7 +570,7 @@ typedef struct app_rec_entry *(app_recovery_get) (uint32_t type);
 
 typedef int (app_delta_init) (void);
 typedef void (app_delta_exit) (void);
-typedef int (app_delta_write) (struct nvm_io_cmd *);
+typedef int (app_delta_submit) (struct nvm_io_cmd *);
 
 struct app_channels {
     app_ch_init         *init_fn;
@@ -692,7 +693,7 @@ struct app_delta {
     char                   *name;
     app_delta_init         *init_fn;
     app_delta_exit         *exit_fn;
-    app_delta_write        *write_fn;
+    app_delta_submit       *submit_fn;
 };
 
 struct app_global {
