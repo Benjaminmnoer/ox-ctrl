@@ -102,14 +102,15 @@ static int nvme_parser_read_submit (struct nvm_io_cmd *cmd)
     uint32_t sec_i, pgs;
     struct nvm_ppa_addr sec_ppa;
     struct nvm_mmgr *mmgr = ox_get_mmgr_instance ();
+    struct app_map_entry *map_entry;
 
     pgs = cmd->n_sec / mmgr->geometry->sec_per_pl_pg;
     if (cmd->n_sec % mmgr->geometry->sec_per_pl_pg > 0)
         pgs++;
 
     for (sec_i = 0; sec_i < cmd->n_sec; sec_i++) {
-
-        sec_ppa.ppa = oxapp()->gl_map->read_fn (cmd->slba + sec_i);
+        map_entry = oxapp()->gl_map->read_fn (cmd->slba + sec_i);
+        sec_ppa.ppa = map_entry->ppa;
         if (sec_ppa.ppa == AND64)
             return 1;
 

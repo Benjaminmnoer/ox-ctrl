@@ -782,7 +782,7 @@ static int map_upsert (uint64_t lba, uint64_t ppa, uint64_t *old,
     return 0;
 }
 
-static uint64_t map_read (uint64_t lba)
+static struct app_map_entry *map_read (uint64_t lba)
 {
     struct map_cache_entry *cache_ent;
     struct app_map_entry *map_ent;
@@ -815,7 +815,7 @@ static uint64_t map_read (uint64_t lba)
         pthread_spin_unlock (cache_ent->spin);
         return -1;
     }
-    ret = map_ent->ppa;
+    ret = map_ent;
     pthread_spin_unlock (cache_ent->spin);
 
     return ret;

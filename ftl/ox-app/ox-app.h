@@ -529,13 +529,13 @@ typedef int  (app_ch_map_flush) (struct app_channel *);
 typedef void (app_ch_map_mark) (struct app_channel *lch, uint64_t index);
 typedef struct app_map_entry *(app_ch_map_get) (struct app_channel *, uint32_t);
 
-typedef int      (app_gl_map_init) (void);
-typedef void     (app_gl_map_exit) (void);
-typedef void     (app_gl_map_clear) (void);
-typedef int      (app_gl_map_upsert)(uint64_t lba, uint64_t ppa, uint64_t *old,
+typedef int                   (app_gl_map_init) (void);
+typedef void                  (app_gl_map_exit) (void);
+typedef void                  (app_gl_map_clear) (void);
+typedef int                   (app_gl_map_upsert)(uint64_t lba, uint64_t ppa, uint64_t *old,
                                                            uint64_t old_caller);
-typedef uint64_t (app_gl_map_read) (uint64_t lba);
-typedef int      (app_gl_map_upsert_md) (uint64_t index, uint64_t new_ppa,
+typedef struct app_map_entry *(app_gl_map_read) (uint64_t lba);
+typedef int                   (app_gl_map_upsert_md) (uint64_t index, uint64_t new_ppa,
                                                               uint64_t old_ppa);
 
 typedef int  (app_ppa_io_submit) (struct nvm_io_cmd *);
