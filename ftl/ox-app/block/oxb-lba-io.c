@@ -340,10 +340,6 @@ static int lba_io_submit (struct nvm_io_cmd *cmd)
     if (cmd->cmdtype == MMGR_READ_PG)
         goto READ;
 
-    if (cmd->cmdtype == MMGR_WRITE_DELTA){
-        goto DELTA;
-    }
-
     for (lba_i = 0; lba_i < cmd->n_sec; lba_i++)
         lbas[lba_i] = cmd->slba + lba_i;
 
@@ -356,11 +352,6 @@ READ:
     if (ret && cmd->cmdtype == MMGR_WRITE_PG)
         app_transaction_abort ((struct app_transaction_t *) cmd->opaque);
 
-    return ret;
-
-DELTA:
-    printf("I HAVE RECEIVED A DELTA REQUEST WUHUU");
-    ret = oxapp()->delta->write_fn (cmd);
     return ret;
 
 ERR:

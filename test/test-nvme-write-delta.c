@@ -92,7 +92,7 @@ void nvme_test_delta_write (void)
     /* Sets the example context for write */
     ctx.slba = slba;
     ctx.is_write = 1;
-    ctx.nlb = 1; // Technically irrelevant.
+    ctx.nlb = 1;
 
     /* Submit the read command and define the callback function */
     ret = nvmeh_write_delta (write_buffer, NVMEH_DELTA_BUF_SIZE, slba,

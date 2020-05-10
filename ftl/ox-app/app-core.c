@@ -53,7 +53,13 @@ static void app_callback_io (struct nvm_mmgr_io_cmd *cmd)
 
 static int app_submit_io (struct nvm_io_cmd *cmd)
 {
-    return oxapp()->lba_io->submit_fn (cmd);
+    int ret;
+    if (cmd->cmdtype == MMGR_WRITE_DELTA){
+        ret = oxapp()->delta->submit_fn (cmd);
+    } else{
+        ret = oxapp()->lba_io->submit_fn (cmd);
+    }
+    return ret;
 }
 
 static int app_init_channel (struct nvm_channel *ch)
