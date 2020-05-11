@@ -40,10 +40,16 @@ static void delta_sq (struct ox_mq_entry *req)
 {
     printf("Have i done something correct? Delta MQ sq function called.\n");
     struct delta_cmd *cmd = (struct delta_cmd *)req->opaque;
-    uint64_t ppa = oxapp()->gl_map->read_fn(cmd->nvme_cmd->slba);
+    struct app_map_entry *map_entry = oxapp()->gl_map->read_fn(cmd->nvme_cmd->slba);
+    struct app_prov_ppas *prov;
 
+    if (!map_entry->delta){
+        prov = oxapp()->gl_prov->new_fn (1, APP_LINE_DELTA); // For now, take first availabe block.
+
+    } else{
+        return -1;
+    }
     
-    oxapp()->gl_prov->new_fn (1, APP_LINE_DELTA); // For now, take first availabe block
     cmd->mentry = req;
 
     pthread_mutex_lock (&cmd->nvme_cmd->mutex);
