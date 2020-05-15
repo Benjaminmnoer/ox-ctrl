@@ -110,6 +110,7 @@ set(SRC_FTL_OXBLK
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-gc.c
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-log.c
         ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-recovery.c
+        ${PROJECT_SOURCE_DIR}/ftl/ox-app/block/oxb-delta.c
 	${PROJECT_SOURCE_DIR}/ftl/ox-app/block/non-recoverable/oxb-chmap-nr.c
 	${PROJECT_SOURCE_DIR}/ftl/ox-app/block/non-recoverable/oxb-blkmd-nr.c)
 add_library ( ox-ftl-block STATIC ${SRC_FTL_OXBLK} )
@@ -209,3 +210,7 @@ target_link_libraries ( ox-test-nvme-thput-w ox-host-nvme )
 set(OX_TEST_NVME_THPUT_R ${PROJECT_SOURCE_DIR}/test/test-nvme-thput-r.c )
 add_executable ( ox-test-nvme-thput-r ${OX_TEST_NVME_THPUT_R} )
 target_link_libraries ( ox-test-nvme-thput-r ox-host-nvme )
+
+set(OX_TEST_NVME_WRITE_DELTA ${PROJECT_SOURCE_DIR}/test/test-nvme-write-delta.c )
+add_executable ( ox-test-nvme-write-delta ${OX_TEST_NVME_WRITE_DELTA} )
+target_link_libraries ( ox-test-nvme-write-delta ox-host-nvme )

@@ -502,6 +502,7 @@ enum NvmeIoCommands {
     NVME_CMD_COMPARE            = 0x05,
     NVME_CMD_WRITE_ZEROS        = 0x08,
     NVME_CMD_DSM                = 0x09,
+    NVME_CMD_WRITE_DELTA        = 0x0A,
 
     /* For testing purposes */
     NVME_CMD_WRITE_NULL         = 0xfd,

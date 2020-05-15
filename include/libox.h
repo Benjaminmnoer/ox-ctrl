@@ -118,6 +118,7 @@ enum {
     MMGR_WRITE_SGL = 0x9,
     MMGR_WRITE_PL_PG = 0x10,
     MMGR_READ_PL_PG = 0x11,
+    MMGR_WRITE_DELTA = 0x12
 };
 
 enum NVM_ERROR {
@@ -181,6 +182,7 @@ enum OX_MEM_TYPES {
     OX_MEM_OXBLK_REC    = 20,
     OX_MEM_FABRICS      = 21,
     OX_MEM_NVMEF        = 22,
+    OX_MEM_OXBLK_DELTA  = 23,
     OX_MEM_ELEOS_W      = 29,
     OX_MEM_ELEOS_LBA    = 30,
     OX_MEM_APP_HMAP     = 31 /* 31-40 belong to HMAP instances */

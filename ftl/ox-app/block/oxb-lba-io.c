@@ -337,7 +337,7 @@ static int lba_io_submit (struct nvm_io_cmd *cmd)
     uint32_t lba_i;
     uint64_t lbas[cmd->n_sec];
 
-    if (cmd->cmdtype != MMGR_WRITE_PG)
+    if (cmd->cmdtype == MMGR_READ_PG)
         goto READ;
 
     for (lba_i = 0; lba_i < cmd->n_sec; lba_i++)
@@ -569,6 +569,7 @@ static int lba_io_read (struct lba_io_cmd *lcmd)
     struct nvm_io_cmd *cmd;
     uint32_t nlb = rw_off[LBA_IO_READ_Q];
     struct nvm_ppa_addr sec_ppa;
+    struct app_map_entry *map_entry;
 
     pgs = nlb / sec_pl_pg;
     if (nlb % sec_pl_pg > 0)
@@ -582,9 +583,9 @@ static int lba_io_read (struct lba_io_cmd *lcmd)
     cmd->md_sz = sec_pl_pg * pgs * sec_oob;
 
     for (sec_i = 0; sec_i < nlb; sec_i++) {
-
-        sec_ppa.ppa = oxapp()->gl_map->read_fn
+        map_entry = oxapp()->gl_map->read_fn
                                           (rw_line[LBA_IO_READ_Q][sec_i]->lba);
+        sec_ppa.ppa = map_entry->ppa;
         if (sec_ppa.ppa == AND64)
             return 1;
 

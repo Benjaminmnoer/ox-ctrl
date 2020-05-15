@@ -53,7 +53,13 @@ static void app_callback_io (struct nvm_mmgr_io_cmd *cmd)
 
 static int app_submit_io (struct nvm_io_cmd *cmd)
 {
-    return oxapp()->lba_io->submit_fn (cmd);
+    int ret;
+    if (cmd->cmdtype == MMGR_WRITE_DELTA){
+        ret = oxapp()->delta->submit_fn (cmd);
+    } else{
+        ret = oxapp()->lba_io->submit_fn (cmd);
+    }
+    return ret;
 }
 
 static int app_init_channel (struct nvm_channel *ch)
@@ -257,6 +263,11 @@ static int app_global_init (void)
         goto EXIT_LBA_IO;
     }
 
+    if (oxapp()->delta->init_fn ()){
+        log_err ("[ox-app: Delta NOT started.\n");
+        goto EXIT_GC;
+    }
+
     /* Limit the global namespace size for overprov space */
     overprov = APP_GC_OVERPROV;
 
@@ -270,7 +281,8 @@ static int app_global_init (void)
     core.nvm_ns_size -= core.nvm_ns_size % lch[0]->ch->geometry->pl_pg_size;
 
     return 0;
-
+EXIT_GC:
+    oxapp()->gc->exit_fn ();
 EXIT_LBA_IO:
     oxapp()->lba_io->exit_fn ();
 EXIT_GL_MAP:
@@ -298,6 +310,7 @@ static void app_global_exit (void)
         oxapp()->recovery->exit_fn ();
     }
 
+    oxapp()->delta->exit_fn ();
     oxapp()->gc->exit_fn ();
     oxapp()->lba_io->exit_fn ();
     oxapp()->gl_map->exit_fn ();
@@ -390,6 +403,9 @@ int app_mod_set (uint8_t *modset)
                     break;
                 case APPMOD_RECOVERY:
                     oxapp()->recovery = (struct app_recovery *) mod;
+                    break;
+                case APPMOD_DELTA:
+                    oxapp()->delta = (struct app_delta *) mod;
                     break;
             }
 

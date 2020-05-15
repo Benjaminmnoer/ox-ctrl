@@ -117,7 +117,8 @@ enum app_pg_type {
 enum app_line_type {
     APP_LINE_USER = 0x0, /* Provisioning for user (hot) data */
     APP_LINE_COLD = 0x1, /* Provisioning for GC (cold) data */
-    APP_LINE_META = 0x2  /* Provisioning for metadata (recovery log) */
+    APP_LINE_META = 0x2,  /* Provisioning for metadata (recovery log) */
+    APP_LINE_DELTA = 0x3, /* Provisioning for delta data */
 };
 
 enum app_log_type {
@@ -163,7 +164,7 @@ enum ox_stats_event_code {
 
 /* ------- OXAPP MODULE IDS ------- */
 
-#define APP_MOD_COUNT        11
+#define APP_MOD_COUNT        12
 #define APP_FN_SLOTS         32
 
 enum appnvm_mod_types {
@@ -177,7 +178,8 @@ enum appnvm_mod_types {
     APPMOD_LBA_IO   = 0x7,
     APPMOD_GC       = 0x8,
     APPMOD_LOG      = 0x9,
-    APPMOD_RECOVERY = 0xa
+    APPMOD_RECOVERY = 0xa,
+    APPMOD_DELTA    = 0xb
 };
 
 /* Bad block table modules */
@@ -217,6 +219,9 @@ enum appnvm_mod_types {
 
 /* Recovery modules */
 #define OXBLK_RECOVERY 0x1
+
+/* Delta modules */
+#define OXBLK_DELTA    0x1
 
 enum app_gl_functions {
     APP_FN_GLOBAL      = 0,
@@ -309,7 +314,8 @@ struct app_ch_flags {
 struct app_map_entry {
     uint64_t lba;
     uint64_t ppa;
-} __attribute__((packed)); /* 16 bytes entry */
+    uint64_t delta;
+} __attribute__((packed)); /* 24 bytes entry */
 
 struct app_map_md {
     struct nvm_magic byte;
@@ -523,13 +529,13 @@ typedef int  (app_ch_map_flush) (struct app_channel *);
 typedef void (app_ch_map_mark) (struct app_channel *lch, uint64_t index);
 typedef struct app_map_entry *(app_ch_map_get) (struct app_channel *, uint32_t);
 
-typedef int      (app_gl_map_init) (void);
-typedef void     (app_gl_map_exit) (void);
-typedef void     (app_gl_map_clear) (void);
-typedef int      (app_gl_map_upsert)(uint64_t lba, uint64_t ppa, uint64_t *old,
+typedef int                   (app_gl_map_init) (void);
+typedef void                  (app_gl_map_exit) (void);
+typedef void                  (app_gl_map_clear) (void);
+typedef int                   (app_gl_map_upsert)(uint64_t lba, uint64_t ppa, uint64_t *old,
                                                            uint64_t old_caller);
-typedef uint64_t (app_gl_map_read) (uint64_t lba);
-typedef int      (app_gl_map_upsert_md) (uint64_t index, uint64_t new_ppa,
+typedef struct app_map_entry *(app_gl_map_read) (uint64_t lba);
+typedef int                   (app_gl_map_upsert_md) (uint64_t index, uint64_t new_ppa,
                                                               uint64_t old_ppa);
 
 typedef int  (app_ppa_io_submit) (struct nvm_io_cmd *);
@@ -561,6 +567,10 @@ typedef int  (app_recovery_recover) (void);
 typedef int  (app_recovery_log_replay) (void);
 typedef int  (app_recovery_set) (struct app_rec_entry *);
 typedef struct app_rec_entry *(app_recovery_get) (uint32_t type);
+
+typedef int (app_delta_init) (void);
+typedef void (app_delta_exit) (void);
+typedef int (app_delta_submit) (struct nvm_io_cmd *);
 
 struct app_channels {
     app_ch_init         *init_fn;
@@ -678,6 +688,14 @@ struct app_recovery {
     uint8_t                  running;
 };
 
+struct app_delta {
+    uint8_t                 mod_id;
+    char                   *name;
+    app_delta_init         *init_fn;
+    app_delta_exit         *exit_fn;
+    app_delta_submit       *submit_fn;
+};
+
 struct app_global {
     struct app_channels     channels;
 
@@ -693,6 +711,7 @@ struct app_global {
     struct app_gc           *gc;
     struct app_log          *log;
     struct app_recovery     *recovery;
+    struct app_delta        *delta;
 };
 
 /* ------- CHANNEL FUNCTIONS ------- */
@@ -833,6 +852,7 @@ void oxb_lba_io_register (void);
 void oxb_gc_register (void);
 void oxb_log_register (void);
 void oxb_recovery_register ();
+void oxb_delta_register (void);
 
 /* ------- OTHER FUNCTIONS ------- */
 

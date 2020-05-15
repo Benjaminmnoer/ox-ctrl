@@ -376,6 +376,65 @@ int nvmeh_write (uint8_t *buf, uint64_t size, uint64_t slba,
     return nvmeh_rw (buf, size, slba, 1, cb, ctx);
 }
 
+int nvmeh_write_delta (uint8_t *buf, uint64_t size, uint64_t basepage,
+                                           oxf_host_callback_fn *cb, void *ctx)
+{
+    printf("Starting delta request. Size of the request is: %ld.\n", size);
+    struct nvme_cmd_rw *cmd;
+    struct nvmeh_ctx *nvmeh_ctx;
+    struct nvme_sgl_desc *desc;
+    uint8_t *buf_off[1];
+    uint32_t buf_sz[1];
+
+    if (size > OXF_BLK_SIZE){
+        printf("[nvme: Delta updates cannot be larger than 4kb.]\n");
+        return 2;
+    }
+
+    cmd = calloc (1, sizeof (struct nvme_cmd));
+    if (!cmd) {
+        printf("[nvme: Could not allocate memory for cmd.]\n");
+        return -1;
+    }    
+
+    nvmeh_ctx = nvmeh_ctxw_get (&nvmeh);
+    if (!nvmeh_ctx)
+        goto FULL;
+
+    nvmeh_ctx->user_ctx = ctx;
+    nvmeh_ctx->user_cb = cb;
+    nvmeh_ctx->n_cmd = 1;
+
+    buf_off[0] = buf;
+    buf_sz[0] = size; // Will never pose a problem, since the size is never larger than 4096 and can be represented as a 4 byte uint.
+
+    desc = oxf_host_alloc_sgl (buf_off, buf_sz, 1);
+    if (!desc)
+        goto FULL;
+
+    nvmeh_ctx->cmd_status[0].ctx = nvmeh_ctx;
+    nvmeh_ctx->cmd_status[0].status = 0;
+
+    cmd[0].slba = basepage;
+    cmd[0].nlb = 1;
+    cmd[0].opcode = NVME_CMD_WRITE_DELTA;
+
+    if (oxf_host_submit_io (1, (struct nvme_cmd *) &cmd[0], desc, 1, nvmeh_callback, &nvmeh_ctx->cmd_status[0])) {
+        oxf_host_free_sgl (desc);
+        goto FULL;
+    }
+
+    oxf_host_free_sgl (desc);
+
+    printf("Ox command submitted\n");
+
+    return 0;
+
+FULL:
+    free(cmd);
+    return -1;
+}
+
 void nvmeh_exit (void)
 {
     oxf_host_exit ();
