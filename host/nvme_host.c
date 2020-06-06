@@ -406,7 +406,7 @@ int nvmeh_write_delta (uint8_t *buf, uint64_t size, uint64_t basepage,
     nvmeh_ctx->n_cmd = 1;
 
     buf_off[0] = buf;
-    buf_sz[0] = size; // Will never pose a problem, since the size is never larger than 4096 and can be represented as a 4 byte uint.
+    buf_sz[0] = size;
 
     desc = oxf_host_alloc_sgl (buf_off, buf_sz, 1);
     if (!desc)
